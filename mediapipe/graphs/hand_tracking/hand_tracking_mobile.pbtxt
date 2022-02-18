@@ -16,6 +16,7 @@ output_stream: "output_video"
 # Collection of detected/predicted hands, each represented as a list of
 # landmarks. (std::vector<NormalizedLandmarkList>)
 output_stream: "hand_landmarks"
+output_stream: "hand_world_landmarks"
 
 # Throttles the images flowing downstream for flow control. It passes through
 # the very first incoming image unaltered, and waits for downstream nodes
@@ -45,6 +46,7 @@ node {
   input_side_packet: "MODEL_COMPLEXITY:model_complexity"
   input_side_packet: "NUM_HANDS:num_hands"
   output_stream: "LANDMARKS:hand_landmarks"
+  output_stream: "WORLD_LANDMARKS:hand_world_landmarks" # Jon
   output_stream: "HANDEDNESS:handedness"
   output_stream: "PALM_DETECTIONS:palm_detections"
   output_stream: "HAND_ROIS_FROM_LANDMARKS:hand_rects_from_landmarks"

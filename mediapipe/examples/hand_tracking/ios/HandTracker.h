@@ -15,6 +15,7 @@
 - (void)startGraph;
 - (void)processVideoFrame:(CVPixelBufferRef)imageBuffer;
 @property (weak, nonatomic) id <TrackerDelegate> delegate;
+@property(nonatomic) BOOL debugLoggingEnabled;
 @end
 
 @interface Landmark: NSObject

@@ -102,13 +102,17 @@ static const int kNumHands = 2;
             fromStream:(const std::string&)streamName {
     if (streamName == kLandmarksOutputStream) {
         if (packet.IsEmpty()) {
-            NSLog(@"[TS:%lld] No hand landmarks", packet.Timestamp().Value());
+            if (_debugLoggingEnabled) {
+                NSLog(@"[TS:%lld] No hand landmarks", packet.Timestamp().Value());
+            }
             return; 
         }
 
         const auto& multiHandLandmarks = packet.Get<std::vector<::mediapipe::NormalizedLandmarkList>>();
-        NSLog(@"[TS:%lld] Number of hand instances with landmarks: %lu", packet.Timestamp().Value(),
-          multiHandLandmarks.size());
+        if (_debugLoggingEnabled) {
+            NSLog(@"[TS:%lld] Number of hand instances with landmarks: %lu", packet.Timestamp().Value(),
+            multiHandLandmarks.size());
+        }
         // const auto& landmarks = packet.Get<::mediapipe::NormalizedLandmarkList>();
         
         //        for (int i = 0; i < landmarks.landmark_size(); ++i) {
@@ -127,10 +131,14 @@ static const int kNumHands = 2;
         NSMutableArray<Landmark *> *result = [NSMutableArray array];
         for (int handIndex = 0; handIndex < multiHandLandmarks.size(); ++handIndex) {
             const auto& landmarks = multiHandLandmarks[handIndex];
-            NSLog(@"\tNumber of landmarks for hand[%d]: %d", handIndex, landmarks.landmark_size());
+            if (_debugLoggingEnabled) {
+                NSLog(@"\tNumber of landmarks for hand[%d]: %d", handIndex, landmarks.landmark_size());
+            }
             for (int i = 0; i < landmarks.landmark_size(); ++i) {
-                NSLog(@"\t\tLandmark[%d]: (%f, %f, %f)", i, landmarks.landmark(i).x(),
-                    landmarks.landmark(i).y(), landmarks.landmark(i).z());
+                if (_debugLoggingEnabled) {
+                    NSLog(@"\t\tLandmark[%d]: (%f, %f, %f)", i, landmarks.landmark(i).x(),
+                        landmarks.landmark(i).y(), landmarks.landmark(i).z());
+                }
                 Landmark *landmark = [[Landmark alloc] initWithX:landmarks.landmark(i).x()
                                                            y:landmarks.landmark(i).y()
                                                            z:landmarks.landmark(i).z()];
@@ -142,21 +150,29 @@ static const int kNumHands = 2;
 
     if (streamName == kWorldLandmarksOutputStream) {
         if (packet.IsEmpty()) {
-            NSLog(@"[TS:%lld] No world hand landmarks", packet.Timestamp().Value());
+            if (_debugLoggingEnabled) {
+                NSLog(@"[TS:%lld] No world hand landmarks", packet.Timestamp().Value());
+            }
             return; 
         }
 
         const auto& multiHandLandmarks = packet.Get<std::vector<::mediapipe::LandmarkList>>();
-        NSLog(@"[TS:%lld] Number of world hand instances with landmarks: %lu", packet.Timestamp().Value(),
-          multiHandLandmarks.size());
+        if (_debugLoggingEnabled) {
+            NSLog(@"[TS:%lld] Number of world hand instances with landmarks: %lu", packet.Timestamp().Value(),
+                multiHandLandmarks.size());
+        }
 
         NSMutableArray<Landmark *> *result = [NSMutableArray array];
         for (int handIndex = 0; handIndex < multiHandLandmarks.size(); ++handIndex) {
             const auto& landmarks = multiHandLandmarks[handIndex];
-            NSLog(@"\tNumber of world landmarks for hand[%d]: %d", handIndex, landmarks.landmark_size());
+            if (_debugLoggingEnabled) {
+                NSLog(@"\tNumber of world landmarks for hand[%d]: %d", handIndex, landmarks.landmark_size());
+            }
             for (int i = 0; i < landmarks.landmark_size(); ++i) {
-                NSLog(@"\t\tWorld Landmark[%d]: (%f, %f, %f)", i, landmarks.landmark(i).x(),
-                    landmarks.landmark(i).y(), landmarks.landmark(i).z());
+                if (_debugLoggingEnabled) {
+                    NSLog(@"\t\tWorld Landmark[%d]: (%f, %f, %f)", i, landmarks.landmark(i).x(),
+                        landmarks.landmark(i).y(), landmarks.landmark(i).z());
+                }
                 Landmark *landmark = [[Landmark alloc] initWithX:landmarks.landmark(i).x()
                                                            y:landmarks.landmark(i).y()
                                                            z:landmarks.landmark(i).z()];

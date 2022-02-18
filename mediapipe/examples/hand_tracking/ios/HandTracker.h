@@ -5,8 +5,8 @@
 @class HandTracker;
 
 @protocol TrackerDelegate <NSObject>
-- (void)handTracker: (HandTracker*)handTracker didOutputLandmarks: (NSArray<Landmark *> *)landmarks;
-- (void)handTracker: (HandTracker*)handTracker didOutputWorldLandmarks: (NSArray<Landmark *> *)landmarks;
+- (void)handTracker: (HandTracker*)handTracker didOutputHandLandmarks: (NSArray<NSArray<Landmark *> *> *)hands;
+- (void)handTracker: (HandTracker*)handTracker didOutputHandWorldLandmarks: (NSArray<NSArray<Landmark *> *> *)hands;
 - (void)handTracker: (HandTracker*)handTracker didOutputPixelBuffer: (CVPixelBufferRef)pixelBuffer;
 @end
 

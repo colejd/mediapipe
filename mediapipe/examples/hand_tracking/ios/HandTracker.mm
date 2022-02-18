@@ -128,8 +128,9 @@ static const int kNumHands = 2;
         // }
         // [_delegate handTracker: self didOutputLandmarks: result];
 
-        NSMutableArray<Landmark *> *result = [NSMutableArray array];
+        NSMutableArray<NSMutableArray<Landmark *> *> *result = [NSMutableArray array];
         for (int handIndex = 0; handIndex < multiHandLandmarks.size(); ++handIndex) {
+            NSMutableArray<Landmark *> *arr = [NSMutableArray array];
             const auto& landmarks = multiHandLandmarks[handIndex];
             if (_debugLoggingEnabled) {
                 NSLog(@"\tNumber of landmarks for hand[%d]: %d", handIndex, landmarks.landmark_size());
@@ -142,10 +143,11 @@ static const int kNumHands = 2;
                 Landmark *landmark = [[Landmark alloc] initWithX:landmarks.landmark(i).x()
                                                            y:landmarks.landmark(i).y()
                                                            z:landmarks.landmark(i).z()];
-                [result addObject:landmark];
+                [arr addObject:landmark];
             }
+            [result addObject:arr];
         }
-        [_delegate handTracker: self didOutputLandmarks: result];
+        [_delegate handTracker: self didOutputHandLandmarks: result];
     }
 
     if (streamName == kWorldLandmarksOutputStream) {
@@ -162,8 +164,9 @@ static const int kNumHands = 2;
                 multiHandLandmarks.size());
         }
 
-        NSMutableArray<Landmark *> *result = [NSMutableArray array];
+        NSMutableArray<NSMutableArray<Landmark *> *> *result = [NSMutableArray array];
         for (int handIndex = 0; handIndex < multiHandLandmarks.size(); ++handIndex) {
+            NSMutableArray<Landmark *> *arr = [NSMutableArray array];
             const auto& landmarks = multiHandLandmarks[handIndex];
             if (_debugLoggingEnabled) {
                 NSLog(@"\tNumber of world landmarks for hand[%d]: %d", handIndex, landmarks.landmark_size());
@@ -176,10 +179,11 @@ static const int kNumHands = 2;
                 Landmark *landmark = [[Landmark alloc] initWithX:landmarks.landmark(i).x()
                                                            y:landmarks.landmark(i).y()
                                                            z:landmarks.landmark(i).z()];
-                [result addObject:landmark];
+                [arr addObject:landmark];
             }
+            [result addObject:arr];
         }
-        [_delegate handTracker: self didOutputWorldLandmarks: result];
+        [_delegate handTracker: self didOutputHandWorldLandmarks: result];
     }
 }
 

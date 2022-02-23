@@ -140,6 +140,7 @@ config_setting(
         "ios_x86_64",
         "ios_armv7",
         "ios_arm64",
+        "ios_sim_arm64",
         "ios_arm64e",
     ]
 ]

@@ -312,8 +312,8 @@ http_archive(
 
 http_archive(
     name = "build_bazel_rules_apple",
-    sha256 = "77e8bf6fda706f420a55874ae6ee4df0c9d95da6c7838228b26910fc82eea5a2",
-    url = "https://github.com/bazelbuild/rules_apple/releases/download/0.32.0/rules_apple.0.32.0.tar.gz",
+    sha256 = "a5f00fd89eff67291f6cd3efdc8fad30f4727e6ebb90718f3f05bbf3c3dd5ed7",
+    url = "https://github.com/bazelbuild/rules_apple/releases/download/0.33.0/rules_apple.0.33.0.tar.gz",
     patches = [
         # Bypass checking ios unit test runner when building MP ios applications.
         "@//third_party:build_bazel_rules_apple_bypass_test_runner_check.diff"
@@ -339,9 +339,9 @@ swift_rules_dependencies()
 
 http_archive(
     name = "build_bazel_apple_support",
-    sha256 = "741366f79d900c11e11d8efd6cc6c66a31bfb2451178b58e0b5edc6f1db17b35",
+    sha256 = "5bbce1b2b9a3d4b03c0697687023ef5471578e76f994363c641c5f50ff0c7268",
     urls = [
-        "https://github.com/bazelbuild/apple_support/releases/download/0.10.0/apple_support.0.10.0.tar.gz"
+        "https://github.com/bazelbuild/apple_support/releases/download/0.13.0/apple_support.0.13.0.tar.gz"
     ],
 )
 

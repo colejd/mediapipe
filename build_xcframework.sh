@@ -28,7 +28,7 @@ echo "BUILDING ios_arm64 FRAMEWORK"
 echo "=================================="
 
 set -o pipefail
-bazel build --copt=-fembed-bitcode --apple_bitcode=embedded --config=ios_arm64 mediapipe/examples/hand_tracking/ios:HandTracker 2>&1 | tee buildlog-arm64.txt
+bazel build --color=yes --copt=-fembed-bitcode --apple_bitcode=embedded --config=ios_arm64 mediapipe/examples/hand_tracking/ios:HandTracker 2>&1 | tee buildlog-arm64.txt
 if [ $? -ne 0 ]; then
   exit 1
 fi
@@ -56,7 +56,7 @@ echo "BUILDING ios_sim_arm64 FRAMEWORK"
 echo "=================================="
 
 set -o pipefail
-bazel build --copt=-fembed-bitcode --apple_bitcode=embedded --config=ios_sim_arm64 mediapipe/examples/hand_tracking/ios:HandTracker 2>&1 | tee buildlog-sim-arm64.txt
+bazel build --color=yes --copt=-fembed-bitcode --apple_bitcode=embedded --config=ios_sim_arm64 mediapipe/examples/hand_tracking/ios:HandTracker 2>&1 | tee buildlog-sim-arm64.txt
 if [ $? -ne 0 ]; then
   exit 1
 fi

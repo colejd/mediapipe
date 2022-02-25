@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Cribbed from https://github.com/swittk/MediapipeHandTrackingIOSLibrary/blob/master/BUILD_FACE_MESH_XCFRAMEWORK.sh
+# Cribbed from https://github.com/swittk/MediapipeFaceMeshIOSLibrary/blob/master/BUILD_FACE_MESH_XCFRAMEWORK.sh
 
 rm ./buildlog-arm64.txt
 rm ./buildlog-sim-arm64.txt
@@ -21,7 +21,19 @@ mkdir -p ./frameworkbuild/HandTracker/xcframework
 
 # =======================================
 # build the arm64 binary framework
+
+echo ""
+echo "=================================="
+echo "BUILDING ios_arm64 FRAMEWORK"
+echo "=================================="
+
+set -o pipefail
 bazel build --copt=-fembed-bitcode --apple_bitcode=embedded --config=ios_arm64 mediapipe/examples/hand_tracking/ios:HandTracker 2>&1 | tee buildlog-arm64.txt
+if [ $? -ne 0 ]; then
+  exit 1
+fi
+set +o pipefail
+
 arm64_build_location=$(cat buildlog-arm64.txt | grep -o 'bazel-out\/.*HandTracker' | head -1)
 
 # The arm64 framework zip will be located at //bazel-bin/mediapipe/examples/hand_tracking/ios/HandTracker.zip
@@ -30,11 +42,26 @@ arm64_build_location=$(cat buildlog-arm64.txt | grep -o 'bazel-out\/.*HandTracke
 ./mediapipe/examples/hand_tracking/ios/patch_ios_framework.sh ./$arm64_build_location.zip HandTracker.h
 
 # There will be a resulting patched .framework folder at the same directory, this is our arm64 one, we copy it to our arm64 folder
+echo "Copying from $arm64_build_location"
 cp -a ./$arm64_build_location.framework ./frameworkbuild/HandTracker/arm64
+
 
 # =======================================
 # build the arm64 simulator binary framework
+
+echo ""
+echo ""
+echo "=================================="
+echo "BUILDING ios_sim_arm64 FRAMEWORK"
+echo "=================================="
+
+set -o pipefail
 bazel build --copt=-fembed-bitcode --apple_bitcode=embedded --config=ios_sim_arm64 mediapipe/examples/hand_tracking/ios:HandTracker 2>&1 | tee buildlog-sim-arm64.txt
+if [ $? -ne 0 ]; then
+  exit 1
+fi
+set +o pipefail
+
 arm64_sim_build_location=$(cat buildlog-sim-arm64.txt | grep -o 'bazel-out\/.*HandTracker' | head -1)
 
 # Call the framework patcher (First argument = compressed framework.zip, Second argument = header file's name(in this case HandTrackingIOSLib.h))
@@ -62,6 +89,7 @@ cp -a "./$arm64_sim_build_location.framework" ./frameworkbuild/HandTracker/arm64
 #   -framework ./frameworkbuild/HandTracker/arm64/HandTracker.framework \
 #   -output ./frameworkbuild/HandTracker/xcframework/HandTracker.xcframework
 
+echo ""
 echo ""
 echo "=================================="
 echo "BUILDING XCFRAMEWORK"

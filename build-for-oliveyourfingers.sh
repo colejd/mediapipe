@@ -1,6 +1,7 @@
 #!/bin/sh
 
 sh ./build_xcframework.sh
+# sh ./build_xcframework_from_frameworks.sh
 
 if [ $? -ne 0 ]; then
   exit 1

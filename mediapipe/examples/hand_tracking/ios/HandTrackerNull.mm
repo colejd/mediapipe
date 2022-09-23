@@ -8,6 +8,10 @@
 - (instancetype)initWithX:(float)x y:(float)y z:(float)z;
 @end
 
+@interface NormalizedRect()
+- (instancetype)initWithXCenter:(float)xCenter yCenter:(float)yCenter width:(float)width height:(float)height;
+@end
+
 @implementation HandTracker {}
 
 #pragma mark - Cleanup methods
@@ -45,6 +49,22 @@
         _x = x;
         _y = y;
         _z = z;
+    }
+    return self;
+}
+
+@end
+
+@implementation NormalizedRect
+
+- (instancetype)initWithXCenter:(float)xCenter yCenter:(float)yCenter width:(float)width height:(float)height
+{
+    self = [super init];
+    if (self) {
+        _xCenter = xCenter;
+        _yCenter = yCenter;
+        _width = width;
+        _height = height;
     }
     return self;
 }

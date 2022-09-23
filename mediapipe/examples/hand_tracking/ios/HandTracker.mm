@@ -3,6 +3,7 @@
 #import "mediapipe/objc/MPPCameraInputSource.h"
 #import "mediapipe/objc/MPPLayerRenderer.h"
 #include "mediapipe/framework/formats/landmark.pb.h"
+#include "mediapipe/framework/formats/rect.pb.h"
 
 static NSString* const kGraphName = @"hand_tracking_mobile_gpu";
 static const char* kInputStream = "input_video";
@@ -11,6 +12,7 @@ static const char* kVideoQueueLabel = "com.google.mediapipe.example.videoQueue";
 static const char* kLandmarksOutputStream = "hand_landmarks";
 static const char* kWorldLandmarksOutputStream = "hand_world_landmarks";
 static const char* kNumHandsInputSidePacket = "num_hands";
+static const char* kHandRectsFromPalmDetections = "hand_rects_from_palm_detections";
 
 // Max number of hands to detect/process.
 static const int kNumHands = 2;
@@ -21,6 +23,10 @@ static const int kNumHands = 2;
 
 @interface Landmark()
 - (instancetype)initWithX:(float)x y:(float)y z:(float)z;
+@end
+
+@interface NormalizedRect()
+- (instancetype)initWithXCenter:(float)xCenter yCenter:(float)yCenter width:(float)width height:(float)height;
 @end
 
 @implementation HandTracker {}
@@ -62,6 +68,7 @@ static const int kNumHands = 2;
     [newGraph addFrameOutputStream:kOutputStream outputPacketType:MPPPacketTypePixelBuffer];
     [newGraph addFrameOutputStream:kLandmarksOutputStream outputPacketType:MPPPacketTypeRaw];
     [newGraph addFrameOutputStream:kWorldLandmarksOutputStream outputPacketType:MPPPacketTypeRaw];
+    [newGraph addFrameOutputStream:kHandRectsFromPalmDetections outputPacketType:MPPPacketTypeRaw];
     return newGraph;
 }
 
@@ -185,6 +192,23 @@ static const int kNumHands = 2;
         }
         [_delegate handTracker: self didOutputHandWorldLandmarks: result];
     }
+
+    if (streamName == kHandRectsFromPalmDetections) {
+        const auto& rects = packet.Get<std::vector<::mediapipe::NormalizedRect>>();
+        NSMutableArray<NormalizedRect *> *arr = [NSMutableArray array];
+        if (_debugLoggingEnabled) {
+            NSLog(@"\tNumber of palm rects: %lu", rects.size());
+        }
+        for (int i = 0; i < rects.size(); ++i) {
+            NormalizedRect *rect = [[NormalizedRect alloc] initWithXCenter:rects[i].x_center()
+                                                           yCenter:rects[i].y_center()
+                                                           width:rects[i].width()
+                                                           height:rects[i].height()
+                                                           ];
+            [arr addObject:rect];
+        }
+        [_delegate handTracker: self didOutputNormalizedPalmRects: arr];
+    }
 }
 
 - (void)processVideoFrame:(CVPixelBufferRef)imageBuffer {
@@ -205,6 +229,22 @@ static const int kNumHands = 2;
         _x = x;
         _y = y;
         _z = z;
+    }
+    return self;
+}
+
+@end
+
+@implementation NormalizedRect
+
+- (instancetype)initWithXCenter:(float)xCenter yCenter:(float)yCenter width:(float)width height:(float)height
+{
+    self = [super init];
+    if (self) {
+        _xCenter = xCenter;
+        _yCenter = yCenter;
+        _width = width;
+        _height = height;
     }
     return self;
 }

@@ -12,12 +12,15 @@
 - (void)handTracker: (HandTracker*)handTracker didOutputPixelBuffer: (CVPixelBufferRef)pixelBuffer;
 @end
 
-@interface HandTracker : NSObject
-- (instancetype)init;
+@interface HandTracker : NSObject {}
+- (instancetype)init:(int)numHands;
 - (void)startGraph;
 - (void)processVideoFrame:(CVPixelBufferRef)imageBuffer;
+- (void)setNumHands:(int)numHands;
+- (int)getNumHands;
 @property (weak, nonatomic) id <TrackerDelegate> delegate;
 @property(nonatomic) BOOL debugLoggingEnabled;
+@property (nonatomic) int kNumHands;
 @end
 
 @interface Landmark: NSObject

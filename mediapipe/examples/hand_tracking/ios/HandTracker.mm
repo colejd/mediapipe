@@ -14,8 +14,8 @@ static const char* kWorldLandmarksOutputStream = "hand_world_landmarks";
 static const char* kNumHandsInputSidePacket = "num_hands";
 static const char* kHandRectsFromPalmDetections = "hand_rects_from_palm_detections";
 
-// Max number of hands to detect/process.
-static const int kNumHands = 2;
+// // Max number of hands to detect/process.
+// static const int kNumHands = 2;
 
 @interface HandTracker() <MPPGraphDelegate>
 @property(nonatomic) MPPGraph* mediapipeGraph;
@@ -43,7 +43,7 @@ static const int kNumHands = 2;
 
 #pragma mark - MediaPipe graph methods
 
-+ (MPPGraph*)loadGraphFromResource:(NSString*)resource {
++ (MPPGraph*)loadGraphFromResource:(NSString*)resource numHands:(int)numHands {
     // Load the graph config resource.
     NSError* configLoadError = nil;
     NSBundle* bundle = [NSBundle bundleForClass:[self class]];
@@ -63,7 +63,7 @@ static const int kNumHands = 2;
     
     // Create MediaPipe graph with mediapipe::CalculatorGraphConfig proto object.
     MPPGraph* newGraph = [[MPPGraph alloc] initWithGraphConfig:config];
-    [newGraph setSidePacket:(mediapipe::MakePacket<int>(kNumHands))
+    [newGraph setSidePacket:(mediapipe::MakePacket<int>(numHands))
                                named:kNumHandsInputSidePacket];
     [newGraph addFrameOutputStream:kOutputStream outputPacketType:MPPPacketTypePixelBuffer];
     [newGraph addFrameOutputStream:kLandmarksOutputStream outputPacketType:MPPPacketTypeRaw];
@@ -72,14 +72,15 @@ static const int kNumHands = 2;
     return newGraph;
 }
 
-- (instancetype)init
+- (instancetype)init:(int)kNumHands
 {
     self = [super init];
-    if (self) {
-        self.mediapipeGraph = [[self class] loadGraphFromResource:kGraphName];
+    if (self) {    
+        self.mediapipeGraph = [[self class] loadGraphFromResource:kGraphName numHands:kNumHands];
         self.mediapipeGraph.delegate = self;
         // Set maxFramesInFlight to a small value to avoid memory contention for real-time processing.
         self.mediapipeGraph.maxFramesInFlight = 2;
+        self.kNumHands = kNumHands;
     }
     return self;
 }
@@ -215,6 +216,35 @@ static const int kNumHands = 2;
     [self.mediapipeGraph sendPixelBuffer:imageBuffer
                               intoStream:kInputStream
                               packetType:MPPPacketTypePixelBuffer];
+}
+
+- (void)setNumHands:(int)numHands {
+    self.kNumHands = numHands;
+
+    // Repeat everything from deinit
+
+    self.mediapipeGraph.delegate = nil;
+    [self.mediapipeGraph cancel];
+    // Ignore errors since we're cleaning up.
+    [self.mediapipeGraph closeAllInputStreamsWithError:nil];
+    [self.mediapipeGraph waitUntilDoneWithError:nil];
+    // TODO: We crash here when this is called. waitUntilDoneWithError must be called
+    // from a background thread because it never times out (!!!!!!!)
+    // See here: https://github.com/google/mediapipe/blob/ead41132a856379a9a7d22f29abe471dc11f2b4a/mediapipe/objc/MPPGraph.h#L234
+    // It might be that it's better to change kNumHands by just reinitializing the whole HandTracker object externally.
+
+    // Repeat everything from init
+
+    self.mediapipeGraph = [[self class] loadGraphFromResource:kGraphName numHands:numHands];
+    self.mediapipeGraph.delegate = self;
+    // Set maxFramesInFlight to a small value to avoid memory contention for real-time processing.
+    self.mediapipeGraph.maxFramesInFlight = 2;
+
+    [self startGraph];
+}
+
+- (int)getNumHands {
+    return self.kNumHands;
 }
 
 @end

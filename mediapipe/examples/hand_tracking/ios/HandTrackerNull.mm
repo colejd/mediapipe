@@ -21,7 +21,7 @@
 
 #pragma mark - MediaPipe graph methods
 
-- (instancetype)init
+- (instancetype)init:(int)kNumHands
 {
     self = [super init];
     if (self) {

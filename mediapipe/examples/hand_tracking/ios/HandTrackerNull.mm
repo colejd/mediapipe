@@ -37,6 +37,14 @@
     [_delegate handTracker: self didOutputPixelBuffer: imageBuffer];
 }
 
+- (void)setNumHands:(int)numHands {
+    self.kNumHands = numHands;
+}
+
+- (int)getNumHands {
+    return self.kNumHands;
+}
+
 @end
 
 

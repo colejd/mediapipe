@@ -13,6 +13,7 @@ static const char* kLandmarksOutputStream = "hand_landmarks";
 static const char* kWorldLandmarksOutputStream = "hand_world_landmarks";
 static const char* kNumHandsInputSidePacket = "num_hands";
 static const char* kHandRectsFromPalmDetections = "hand_rects_from_palm_detections";
+static const char* kLandmarkPresence = "landmark_presence";
 
 // // Max number of hands to detect/process.
 // static const int kNumHands = 2;
@@ -56,11 +57,11 @@ static const char* kHandRectsFromPalmDetections = "hand_rects_from_palm_detectio
         NSLog(@"Failed to load MediaPipe graph config: %@", configLoadError);
         return nil;
     }
-    
+
     // Parse the graph config resource into mediapipe::CalculatorGraphConfig proto object.
     mediapipe::CalculatorGraphConfig config;
     config.ParseFromArray(data.bytes, data.length);
-    
+
     // Create MediaPipe graph with mediapipe::CalculatorGraphConfig proto object.
     MPPGraph* newGraph = [[MPPGraph alloc] initWithGraphConfig:config];
     [newGraph setSidePacket:(mediapipe::MakePacket<int>(numHands))
@@ -69,13 +70,14 @@ static const char* kHandRectsFromPalmDetections = "hand_rects_from_palm_detectio
     [newGraph addFrameOutputStream:kLandmarksOutputStream outputPacketType:MPPPacketTypeRaw];
     [newGraph addFrameOutputStream:kWorldLandmarksOutputStream outputPacketType:MPPPacketTypeRaw];
     [newGraph addFrameOutputStream:kHandRectsFromPalmDetections outputPacketType:MPPPacketTypeRaw];
+    [newGraph addFrameOutputStream:kLandmarkPresence outputPacketType:MPPPacketTypeRaw];
     return newGraph;
 }
 
 - (instancetype)init:(int)kNumHands
 {
     self = [super init];
-    if (self) {    
+    if (self) {
         self.mediapipeGraph = [[self class] loadGraphFromResource:kGraphName numHands:kNumHands];
         self.mediapipeGraph.delegate = self;
         // Set maxFramesInFlight to a small value to avoid memory contention for real-time processing.
@@ -113,7 +115,7 @@ static const char* kHandRectsFromPalmDetections = "hand_rects_from_palm_detectio
             if (_debugLoggingEnabled) {
                 NSLog(@"[TS:%lld] No hand landmarks", packet.Timestamp().Value());
             }
-            return; 
+            // return;
         }
 
         const auto& multiHandLandmarks = packet.Get<std::vector<::mediapipe::NormalizedLandmarkList>>();
@@ -122,7 +124,7 @@ static const char* kHandRectsFromPalmDetections = "hand_rects_from_palm_detectio
             multiHandLandmarks.size());
         }
         // const auto& landmarks = packet.Get<::mediapipe::NormalizedLandmarkList>();
-        
+
         //        for (int i = 0; i < landmarks.landmark_size(); ++i) {
         //            NSLog(@"\tLandmark[%d]: (%f, %f, %f)", i, landmarks.landmark(i).x(),
         //                  landmarks.landmark(i).y(), landmarks.landmark(i).z());
@@ -163,7 +165,7 @@ static const char* kHandRectsFromPalmDetections = "hand_rects_from_palm_detectio
             if (_debugLoggingEnabled) {
                 NSLog(@"[TS:%lld] No world hand landmarks", packet.Timestamp().Value());
             }
-            return; 
+            // return;
         }
 
         const auto& multiHandLandmarks = packet.Get<std::vector<::mediapipe::LandmarkList>>();
@@ -209,6 +211,14 @@ static const char* kHandRectsFromPalmDetections = "hand_rects_from_palm_detectio
             [arr addObject:rect];
         }
         [_delegate handTracker: self didOutputNormalizedPalmRects: arr];
+    }
+
+    if (streamName == kLandmarkPresence) {
+        auto presence = packet.Get<bool>();
+        if (_debugLoggingEnabled) {
+            NSLog(@"\tPresence: %@", presence ? @"YES" : @"NO");
+        }
+        [_delegate handTracker: self didOutputPresence: presence];
     }
 }
 

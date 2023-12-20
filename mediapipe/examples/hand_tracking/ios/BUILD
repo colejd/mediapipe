@@ -1,6 +1,6 @@
 # https://github.com/bazelbuild/rules_apple/tree/master/doc
 load("@build_bazel_rules_apple//apple:ios.bzl", "ios_framework")
-# load("@build_bazel_rules_swift//swift:swift.bzl", "swift_library") 
+# load("@build_bazel_rules_swift//swift:swift.bzl", "swift_library")
 load("@build_bazel_rules_apple//apple:apple.bzl", "apple_xcframework")
 
 # ios_framework(name, additional_linker_inputs, bundle_id, bundle_name, bundle_only, codesign_inputs,
@@ -100,6 +100,7 @@ objc_library(
             "//mediapipe/objc:mediapipe_input_sources_ios",
             "//mediapipe/objc:mediapipe_layer_renderer",
             "//mediapipe/graphs/hand_tracking:mobile_calculators",
+            "//mediapipe/calculators/core:packet_presence_calculator",
             "//mediapipe/framework/formats:landmark_cc_proto",
         ],
     }),

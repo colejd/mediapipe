@@ -10,6 +10,7 @@
 - (void)handTracker: (HandTracker*)handTracker didOutputHandWorldLandmarks: (NSArray<NSArray<Landmark *> *> *)hands;
 - (void)handTracker: (HandTracker*)handTracker didOutputNormalizedPalmRects: (NSArray<NormalizedRect *> *)rects;
 - (void)handTracker: (HandTracker*)handTracker didOutputPixelBuffer: (CVPixelBufferRef)pixelBuffer;
+- (void)handTracker: (HandTracker*)handTracker didOutputPresence: (bool)presence;
 @end
 
 @interface HandTracker : NSObject {}

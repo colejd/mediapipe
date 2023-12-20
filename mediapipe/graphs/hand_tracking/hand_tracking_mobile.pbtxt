@@ -19,6 +19,8 @@ output_stream: "hand_landmarks"
 output_stream: "hand_world_landmarks"
 # Rects describing palm sizes
 output_stream: "hand_rects_from_palm_detections"
+# Bool describing whether or not any landmarks are currently present
+output_stream: "landmark_presence"
 
 # Throttles the images flowing downstream for flow control. It passes through
 # the very first incoming image unaltered, and waits for downstream nodes
@@ -66,4 +68,14 @@ node {
   input_stream: "NORM_RECTS:0:hand_rects_from_palm_detections"
   input_stream: "NORM_RECTS:1:hand_rects_from_landmarks"
   output_stream: "IMAGE:output_video"
+}
+
+# Add a "presence calculator" to tell us if landmarks have just been detected or not.
+# Gets around the fact that the output streams from hand_landmark_tracking_gpu.pbtxt
+# don't emit if no hands are found.
+# https://github.com/google/mediapipe/issues/1532#issuecomment-826306976
+node {
+  calculator: "PacketPresenceCalculator"
+  input_stream: "PACKET:hand_landmarks"
+  output_stream: "PRESENCE:landmark_presence"
 }
